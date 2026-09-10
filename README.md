@@ -11,7 +11,7 @@ A collection of scripts for automation and data extraction in Habbo Hotel. These
 *   A Habbo-specific version pre-configured with worldwide hotel domains to fetch assets across global servers simultaneously.
 *   **Modes:** Single path lookup or batch processing via `paths.txt`.
 
-### Catalog Data Extractor (`catalog_data_extractor.py`)
+### Catalog Data Extractor (`catalog_data_extractor/`)
 *   A sequential toolset combining **Catalog Dumper** (a G-Earth proxy extension) and **Cleaner and Cross-Reference** to capture, clean, and filter in-game catalog data.
 
 ## Dependencies
