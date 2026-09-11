@@ -2,7 +2,7 @@
 # ======================================================================
 # Habbo HTTPS Extractor (International).
 # Downloads game files across Habbo hotel domains worldwide.
-# Version: 1.4
+# Version: 1.5
 # Author: Max
 # ======================================================================
 
@@ -31,15 +31,15 @@ DELAY_SECONDS = 1
 
 # Verify/update this list before publishing.
 HABBO_DOMAINS = {
-    "1": ("International (habbo.com)", "com"),
-    "2": ("Brazil", "com.br"),
-    "3": ("Germany", "de"),
-    "4": ("Spain", "es"),
-    "5": ("Finland", "fi"),
-    "6": ("France", "fr"),
-    "7": ("Italy", "it"),
-    "8": ("Netherlands", "nl"),
-    "9": ("Turkey", "com.tr"),
+    "1": ("International (habbo.com)", "com", "COM"),
+    "2": ("Brazil", "com.br", "BR"),
+    "3": ("Germany", "de", "DE"),
+    "4": ("Spain", "es", "ES"),
+    "5": ("Finland", "fi", "FI"),
+    "6": ("France", "fr", "FR"),
+    "7": ("Italy", "it", "IT"),
+    "8": ("Netherlands", "nl", "NL"),
+    "9": ("Turkey", "com.tr", "TR"),
 }
 
 
@@ -56,15 +56,16 @@ def ask_yes_no(question):
 def choose_domain():
     print("\nChoose a Habbo hotel:")
     print("0 - All hotels")
-    for key, (label, _) in HABBO_DOMAINS.items():
+    for key, (label, _, _) in HABBO_DOMAINS.items():
         print(f"{key} - {label}")
 
     while True:
         choice = input("Enter the number: ").strip()
         if choice == "0":
-            return [domain for _, domain in HABBO_DOMAINS.values()]
+            return [(domain, sigla) for _, domain, sigla in HABBO_DOMAINS.values()]
         if choice in HABBO_DOMAINS:
-            return [HABBO_DOMAINS[choice][1]]
+            _, domain, sigla = HABBO_DOMAINS[choice]
+            return [(domain, sigla)]
         print(f"{BOLD}{RED}[ERROR]{RESET} Invalid option, try again.")
 
 
@@ -136,19 +137,19 @@ def download_file(url, output_dir, extension):
 def download_single(domains, output_dir, extension):
     while True:
         path = input("Enter the folder path (e.g. gamedata/external_variables): ").strip()
-        urls = [build_url(domain, path) for domain in domains]
+        results = [(build_url(domain, path), sigla) for domain, sigla in domains]
 
-        ok_count = sum(download_file(url, output_dir, extension) for url in urls)
+        ok_count = sum(download_file(url, output_dir, extension, sigla) for url, sigla in results)
         if ok_count > 0:
             return ok_count
         print(f"{BOLD}{YELLOW}[WARNING]{RESET} That path was broken for the selected hotel(s). Please enter it again.")
 
 
-def download_files(urls, output_dir, extension, delay=DELAY_SECONDS):
-    print(f"\nStarting download of {len(urls)} file(s)...\n")
+def download_files(url_sigla_pairs, output_dir, extension, delay=DELAY_SECONDS):
+    print(f"\nStarting download of {len(url_sigla_pairs)} file(s)...\n")
     success = 0
-    for i, url in enumerate(urls):
-        if download_file(url, output_dir, extension):
+    for i, (url, sigla) in enumerate(url_sigla_pairs):
+        if download_file(url, output_dir, extension, sigla):
             success += 1
         else:
             print(f"{BOLD}{YELLOW}[WARNING]{RESET} That URL was broken.")
@@ -156,16 +157,16 @@ def download_files(urls, output_dir, extension, delay=DELAY_SECONDS):
                 print(f"{BOLD}{RED}[ERROR]{RESET} Stopping downloads.")
                 break
 
-        if i < len(urls) - 1:
+        if i < len(url_sigla_pairs) - 1:
             time.sleep(delay)
 
-    print(f"{BOLD}{GREEN}[SUCCESS]{RESET} Done! {success}/{len(urls)} file(s) saved in '{output_dir}'.")
+    print(f"{BOLD}{GREEN}[SUCCESS]{RESET} Done! {success}/{len(url_sigla_pairs)} file(s) saved in '{output_dir}'.")
     return success
 
 
 def main():
     print("=" * 50)
-    print(f"{BOLD}Habbo HTTPS Extractor (International){RESET} | Version: 1.3 | Author: Max")
+    print(f"{BOLD}Habbo HTTPS Extractor (International){RESET} | Version: 1.5 | Author: Max")
     print("=" * 50)
 
     domains = choose_domain()
@@ -181,8 +182,8 @@ def main():
         print(f"{BOLD}{BLUE}[INFO]{RESET} No paths to process. Exiting.")
         return
 
-    urls = [build_url(domain, path) for domain in domains for path in paths]
-    download_files(urls, OUTPUT_DIR, extension)
+    url_sigla_pairs = [(build_url(domain, path), sigla) for domain, sigla in domains for path in paths]
+    download_files(url_sigla_pairs, OUTPUT_DIR, extension)
 
 
 if __name__ == "__main__":
