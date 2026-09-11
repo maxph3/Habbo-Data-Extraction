@@ -1,4 +1,4 @@
-# Habbo-Scripts
+# Habbo Data Extraction
 A collection of scripts for automation and data extraction in Habbo Hotel. These tools were originally created to support a [Japanese localization project](https://github.com/yohaku404/habbo-jp-support).
 
 ## Repository Structure & Tools
